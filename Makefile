@@ -11,3 +11,16 @@ create-env:
 .PHONY: run-backend
 run-backend:
 	@poetry run uvicorn server.app:app --reload
+
+.PHONY: makemigrations
+makemigrations:
+	@poetry run alembic revision --autogenerate
+
+
+.PHONY: migrate
+migrate:
+	@poetry run alembic upgrade head
+
+.PHONY: downgrade
+downgrade:
+	@poetry run alembic downgrade head
