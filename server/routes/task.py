@@ -35,13 +35,10 @@ async def task_list(current_user: str = Depends(service.get_current_user), db: S
     tasks = db.query(models.Task).filter(
         models.Task.owner == current_user
     ).all()
-
     if not tasks:
-        return JSONResponse(content=[], status_code=200)
+        return []
 
-    task_list = [schemas.BaseTask.from_orm(task) for task in tasks]
-
-    return Response(task_list)
+    return [schemas.BaseTask.from_orm(task) for task in tasks]
 
 
 @task_router.get(
@@ -92,5 +89,30 @@ async def task_create(new_task: schemas.TaskCreate, current_user: str = Depends(
         db.rollback()
         raise HTTPException(
             status_code=500,
-            detail=f"Internal Server Error: {e}"
+            detail=f"Ошибка сервера: {e}"
         )
+
+
+@task_router.delete(
+    "/{task_id}",
+    dependencies=[Depends(auth_scheme)],
+    summary="Delete current task"
+)
+async def task_delete(task_id: int, current_user: str = Depends(service.get_current_user), db: SessionLocal = Depends(get_db)):
+    """
+    Удаление определенной задачи
+    """
+    current_task = db.query(models.Task).filter(
+        models.Task.owner == current_user,
+        models.Task.id == task_id
+    ).first()
+
+    if not current_task:
+        raise HTTPException(status_code=404, detail="Задачи не существует")
+
+    db.delete(current_task)
+    db.commit()
+
+    return Response(
+        status_code=204
+    )
