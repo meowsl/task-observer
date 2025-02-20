@@ -50,6 +50,8 @@ class User(Base):
         info={"label": "Пароль"}
     )
 
+    tasks = relationship("Task")
+
     def __str__(self):
         return self.uuid
 

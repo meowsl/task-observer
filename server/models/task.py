@@ -5,10 +5,15 @@ from sqlalchemy import (
     Integer,
     Boolean,
     Text,
-    DateTime
+    DateTime,
+    ForeignKey
 )
-from sqlalchemy.orm import Mapped
+from sqlalchemy.orm import (
+    Mapped,
+    relationship
+)
 
+from .user import User
 from server.config import (
     Base,
     TIMEZONE
@@ -28,6 +33,12 @@ class Task(Base):
         autoincrement=True
     )
 
+    owner_id: Mapped[int] = Column(
+        Integer,
+        ForeignKey("user.uuid"),
+        info={"label": "Автор"}
+    )
+
     name: Mapped[str] = Column(
         String(256),
         info={"label": "Наименование"}
@@ -42,6 +53,11 @@ class Task(Base):
     date: Mapped[datetime] = Column(
         DateTime,
         default=datetime.now(TIMEZONE)
+    )
+
+    owner = relationship(
+        User,
+        back_populates="tasks"
     )
 
     def __str__(self):
