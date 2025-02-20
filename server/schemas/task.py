@@ -1,8 +1,9 @@
 from pydantic import (
     BaseModel,
     Field,
-    validator
+    validator,
 )
+from typing import Optional
 from datetime import datetime
 
 
@@ -24,6 +25,9 @@ class TaskDetail(BaseTask):
     """
     description: str
 
+    class Config:
+        from_attributes = True
+
 
 class TaskCreate(BaseModel):
     """
@@ -37,4 +41,19 @@ class TaskCreate(BaseModel):
 
     description: str = Field(
         description="Описание задачи"
+    )
+
+
+class TaskUpdate(BaseModel):
+    """
+    Схема для частичного обновления задачи
+    """
+    name: Optional[str] = Field(
+        None,
+        max_length=256,
+        description="Новое название задачи"
+    )
+    description: Optional[str] = Field(
+        None,
+        description="Новое описание задачи"
     )

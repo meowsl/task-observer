@@ -116,3 +116,43 @@ async def task_delete(task_id: int, current_user: str = Depends(service.get_curr
     return Response(
         status_code=204
     )
+
+
+@task_router.patch(
+    "/{task_id}",
+    dependencies=[Depends(auth_scheme)],
+    summary="Partial update of a task",
+    response_model=schemas.TaskDetail
+)
+async def task_update(
+    task_id: int,
+    updates: schemas.TaskUpdate,
+    current_user: str = Depends(service.get_current_user),
+    db: SessionLocal = Depends(get_db)
+):
+    """
+    Частичное обновление задачи
+    """
+    current_task = db.query(models.Task).filter(
+        models.Task.owner == current_user,
+        models.Task.id == task_id
+    ).first()
+
+    if not current_task:
+        raise HTTPException(status_code=404, detail="Задача не найдена")
+
+    if updates.name is not None:
+        current_task.name = updates.name
+    if updates.description is not None:
+        current_task.description = updates.description
+
+    try:
+        db.commit()
+        db.refresh(current_task)
+        return schemas.TaskDetail.from_orm(current_task)
+    except Exception as e:
+        db.rollback()
+        raise HTTPException(
+            status_code=500,
+            detail=f"Ошибка сервера: {e}"
+        )

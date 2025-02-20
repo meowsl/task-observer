@@ -7,5 +7,6 @@ from .user import (
 from .task import (
     BaseTask,
     TaskDetail,
-    TaskCreate
+    TaskCreate,
+    TaskUpdate
 )
