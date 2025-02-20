@@ -59,9 +59,7 @@ async def task_detail(task_id: int, current_user: str = Depends(service.get_curr
     if not current_task:
         raise HTTPException(status_code=404, detail="Задачи не существует")
 
-    return Response(
-        schemas.TaskDetail.from_orm(current_task)
-    )
+    return schemas.TaskDetail.from_orm(current_task)
 
 
 @task_router.post(
