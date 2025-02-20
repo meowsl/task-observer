@@ -4,3 +4,8 @@ from .user import (
     CustomAuth,
     UserCreate
 )
+from .task import (
+    BaseTask,
+    TaskDetail,
+    TaskCreate
+)

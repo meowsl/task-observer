@@ -18,6 +18,8 @@ from server.config import (
     SECRET_KEY,
     ALGORITHM,
     auth_scheme,
+    get_db,
+    SessionLocal,
     ACCESS_TOKEN_EXPIRE_MINUTES,
     REFRESH_TOKEN_EXPIRE_MINUTES
 )
@@ -28,6 +30,25 @@ def get_username(db: Session, username: str):
     Получение пользователя по логину
     """
     return db.query(models.User).filter(models.User.username == username).first()
+
+
+async def get_current_user(db: SessionLocal = Depends(get_db), token: str = Depends(auth_scheme)):
+    """
+    Вспомогательная функция для получения инфо об авторизованном пользователе
+    """
+    try:
+        payload = jwt.decode(token, SECRET_KEY, ALGORITHM)
+        username: str = payload.get("sub")
+        if username is None:
+            raise HTTPException(
+                status_code=401,
+                detail="Пожалуйста, авторизуйтесь вновь."
+            )
+
+        user = get_username(db=db, username=username)
+        return user
+    except Exception as error:
+        raise HTTPException(status_code=404, detail=str(error))
 
 
 async def auth_user(db: Session, user: schemas.BaseUser) -> schemas.CustomAuth:

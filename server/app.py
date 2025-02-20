@@ -12,6 +12,7 @@ from server.config import (
 )
 from server.routes import (
     user_router,
+    task_router
 )
 
 Base.metadata.create_all(bind=engine)
@@ -38,3 +39,4 @@ app.add_middleware(
 )
 
 app.include_router(user_router)
+app.include_router(task_router)
