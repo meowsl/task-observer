@@ -6,12 +6,14 @@ from sqlalchemy import (
     Boolean,
     Text,
     DateTime,
-    ForeignKey
+    ForeignKey,
+    Enum
 )
 from sqlalchemy.orm import (
     Mapped,
     relationship
 )
+import enum
 
 from .user import User
 from server.config import (
@@ -19,7 +21,11 @@ from server.config import (
     TIMEZONE
 )
 
-""" TODO: сделать статусы задач """
+
+class TaskStatus(enum.Enum):
+    PLANNED = "Запланирована"
+    IN_PROGRESS = "В процессе"
+    COMPLETED = "Завершена"
 
 
 class Task(Base):
@@ -55,6 +61,12 @@ class Task(Base):
     date: Mapped[datetime] = Column(
         DateTime,
         default=datetime.now(TIMEZONE)
+    )
+
+    status: Mapped[TaskStatus] = Column(
+        Enum(TaskStatus),
+        default=TaskStatus.PLANNED,
+        info={"label": "Статус"}
     )
 
     owner = relationship(
