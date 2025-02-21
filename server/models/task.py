@@ -19,6 +19,8 @@ from server.config import (
     TIMEZONE
 )
 
+""" TODO: сделать статусы задач """
+
 
 class Task(Base):
     """

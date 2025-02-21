@@ -57,7 +57,5 @@ async def register(request: Request, user: schemas.UserCreate, response: Respons
 
     return JSONResponse(
         status_code=201,
-        content={
-            "detail": "Пользователь успешно зарегистрирован."
-        }
+        content=(await service.auth_user(db=db, user=user)).dict()
     )

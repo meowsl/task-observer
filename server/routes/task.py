@@ -13,7 +13,8 @@ from fastapi.responses import JSONResponse
 from server.config import (
     SessionLocal,
     get_db,
-    auth_scheme
+    auth_scheme,
+    token_required
 )
 import server.schemas as schemas
 import server.service as service
@@ -22,11 +23,12 @@ import server.models as models
 task_router = APIRouter(prefix="/task", tags=["Task"])
 
 
+@token_required
 @task_router.get(
     "/list",
     dependencies=[Depends(auth_scheme)],
     summary="List of tasks",
-    response_model=List[schemas.BaseTask]
+    response_model=List[schemas.TaskDetail]
 )
 async def task_list(current_user: str = Depends(service.get_current_user), db: SessionLocal = Depends(get_db)):
     """
@@ -38,7 +40,7 @@ async def task_list(current_user: str = Depends(service.get_current_user), db: S
     if not tasks:
         return []
 
-    return [schemas.BaseTask.from_orm(task) for task in tasks]
+    return [schemas.TaskDetail.from_orm(task) for task in tasks]
 
 
 @task_router.get(
@@ -81,7 +83,7 @@ async def task_create(new_task: schemas.TaskCreate, current_user: str = Depends(
         db.add(new_task)
         db.commit()
 
-        return schemas.BaseTask.from_orm(new_task)
+        return schemas.TaskDetail.from_orm(new_task)
 
     except Exception as e:
         db.rollback()

@@ -42,11 +42,16 @@ async def get_current_user(db: SessionLocal = Depends(get_db), token: str = Depe
         if username is None:
             raise HTTPException(
                 status_code=401,
-                detail="Пожалуйста, авторизуйтесь вновь."
+                detail="Пожалуйста, авторизуйтесь вновь"
             )
 
         user = get_username(db=db, username=username)
         return user
+    except jwt.ExpiredSignatureError:
+        raise HTTPException(
+            status_code=401,
+            detail="Token has expired",
+        )
     except Exception as error:
         raise HTTPException(status_code=404, detail=str(error))
 
@@ -71,8 +76,8 @@ async def auth_user(db: Session, user: schemas.BaseUser) -> schemas.CustomAuth:
     )
 
     return schemas.CustomAuth(
-        access_token=access_token,
-        refresh_token=refresh_token,
+        access_token=str(access_token),
+        refresh_token=str(refresh_token),
         token_type="Bearer"
     )
 
