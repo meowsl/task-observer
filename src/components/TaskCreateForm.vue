@@ -44,7 +44,8 @@ export default defineComponent({
   setup(_, { emit }) {
     const newTask = reactive<Omit<Task, 'id' | 'date'>>({
       name: '',
-      description: ''
+      description: '',
+      status: ''
     });
 
     const handleSubmit = () => {

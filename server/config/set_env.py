@@ -21,7 +21,8 @@ class EnvGenerator:
         shutil.copy(self.dotenv_path, self.new_dotenv_path)
 
         dotenv.load_dotenv(self.new_dotenv_path)
-        dotenv.set_key(self.new_dotenv_path, "SECRET_KEY", secret_key)
+        if not os.getenv("SECRET_KEY"):
+            dotenv.set_key(self.new_dotenv_path, "SECRET_KEY", secret_key)
 
         db_file = os.getenv("DATABASE_FILE")
         db_path = os.path.join(os.getcwd(), "private", db_file)

@@ -3,6 +3,21 @@
     class="task-card"
     v-if="task"
   >
+    <div class="task-card__header">
+      <select
+        v-model="editedTask.status"
+        @change="updateTaskStatus"
+        class="task-card__status-select"
+      >
+        <option
+          v-for="status in taskStatuses"
+          :key="status"
+          :value="status"
+        >
+          {{ status }}
+        </option>
+      </select>
+    </div>
     <h3 v-if="!isEditing">{{ task.name }}</h3>
     <input
       v-else
@@ -11,7 +26,6 @@
       class="task-card__edit-input"
       placeholder="Название задачи"
     />
-
     <p v-if="!isEditing"><strong>Описание:</strong> {{ task.description }}</p>
     <div
       v-else
@@ -24,9 +38,7 @@
         placeholder="Описание задачи"
       ></textarea>
     </div>
-
     <p><strong>Дата:</strong> {{ formattedDate }}</p>
-
     <div class="task-card__buttons">
       <button
         @click="handleDeleteTask"
@@ -44,6 +56,7 @@
     </div>
   </div>
 </template>
+
 <script lang="ts">
 import { defineComponent, ref, computed, reactive } from 'vue';
 import { Task } from '@/interfaces/task';
@@ -64,6 +77,12 @@ export default defineComponent({
     const { deleteTask, updateTask } = useTask();
     const isEditing = ref(false);
     const editedTask = reactive({ ...props.task });
+
+    const taskStatuses = [
+      'Запланирована',
+      'В процессе',
+      'Завершена'
+    ];
 
     const formattedDate = computed(() => {
       if (!props.task.date) return '';
@@ -87,7 +106,6 @@ export default defineComponent({
 
     const toggleEdit = () => {
       if (isEditing.value) {
-        // Отмена редактирования
         editedTask.name = props.task.name;
         editedTask.description = props.task.description;
       }
@@ -104,13 +122,25 @@ export default defineComponent({
       }
     };
 
+    const updateTaskStatus = async () => {
+      try {
+        const updatedTask = { ...editedTask, status: editedTask.status };
+        await updateTask(props.task.id, updatedTask);
+        emit('task-status-updated', { id: props.task.id, status: editedTask.status });
+      } catch (error) {
+        console.error('Failed to update task status:', error);
+      }
+    };
+
     return {
       formattedDate,
       handleDeleteTask,
       isEditing,
       editedTask,
       toggleEdit,
-      saveEditedTask
+      saveEditedTask,
+      taskStatuses,
+      updateTaskStatus
     };
   }
 });
@@ -118,6 +148,7 @@ export default defineComponent({
 
 <style scoped lang="scss">
 .task-card {
+  position: relative;
   border: 1px solid #ccc;
   border-radius: 8px;
   padding: 16px;
@@ -127,7 +158,6 @@ export default defineComponent({
   width: 100%;
   max-width: 350px;
   box-sizing: border-box;
-  /* Ensure padding and border are included in the element's total width and height */
 
   &>h3 {
     margin-top: 0;
@@ -139,6 +169,25 @@ export default defineComponent({
     font-size: 0.9rem;
   }
 
+  &__header {
+    position: absolute;
+    top: 0;
+    left: 0;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 16px;
+  }
+
+  &__status-select {
+    padding: 8px;
+    padding-right: 0;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    font-size: 0.9rem;
+    box-sizing: border-box;
+  }
+
   &__edit-input {
     width: 100%;
     padding: 8px;
@@ -147,7 +196,6 @@ export default defineComponent({
     border-radius: 4px;
     font-size: 1rem;
     box-sizing: border-box;
-    /* Ensure padding and border are included in the element's total width and height */
   }
 
   &__edit-description {
@@ -169,7 +217,6 @@ export default defineComponent({
       resize: vertical;
       min-height: 60px;
       box-sizing: border-box;
-      /* Ensure padding and border are included in the element's total width and height */
     }
   }
 
@@ -183,7 +230,7 @@ export default defineComponent({
     padding: 8px 16px;
     font-size: 0.9rem;
     color: white;
-    background-color: #dc3545; // Красный цвет для кнопки удаления
+    background-color: #dc3545;
     border: none;
     border-radius: 4px;
     cursor: pointer;
@@ -198,7 +245,7 @@ export default defineComponent({
     padding: 8px 16px;
     font-size: 0.9rem;
     color: white;
-    background-color: #28a745; // Зеленый цвет для кнопки редактирования
+    background-color: #28a745;
     border: none;
     border-radius: 4px;
     cursor: pointer;
@@ -213,7 +260,7 @@ export default defineComponent({
     padding: 8px 16px;
     font-size: 0.9rem;
     color: white;
-    background-color: #007bff; // Синий цвет для кнопки сохранения
+    background-color: #007bff;
     border: none;
     border-radius: 4px;
     cursor: pointer;

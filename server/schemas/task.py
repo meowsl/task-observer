@@ -5,6 +5,7 @@ from pydantic import (
 )
 from typing import Optional
 from datetime import datetime
+from server.models import TaskStatus
 
 
 class BaseTask(BaseModel):
@@ -24,6 +25,7 @@ class TaskDetail(BaseTask):
     Детализированная схема задач
     """
     description: str
+    status: TaskStatus
 
     class Config:
         from_attributes = True
@@ -56,4 +58,8 @@ class TaskUpdate(BaseModel):
     description: Optional[str] = Field(
         None,
         description="Новое описание задачи"
+    )
+    status: Optional[str] = Field(
+        None,
+        description="Новый статус"
     )

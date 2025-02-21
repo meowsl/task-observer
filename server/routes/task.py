@@ -145,6 +145,9 @@ async def task_update(
         current_task.name = updates.name
     if updates.description is not None:
         current_task.description = updates.description
+    if updates.status is not None:
+        status_mapping = {status.value: status for status in models.TaskStatus}
+        current_task.status = status_mapping.get(updates.status)
 
     try:
         db.commit()

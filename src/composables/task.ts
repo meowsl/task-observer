@@ -1,5 +1,5 @@
 import { api } from "@/boot/axios"
-import { getAuthToken  } from "."
+import { getAuthToken } from "."
 import { Task } from "@/interfaces/task"
 
 export function useTask() {
@@ -13,7 +13,7 @@ export function useTask() {
     return response.data
   }
 
-  const createTask = async(newTask: Omit<Task, "id" | "date">) => {
+  const createTask = async (newTask: Omit<Task, "id" | "date">) => {
     const response = await api.post('task/create', newTask, {
       headers: {
         'Authorization': getAuthToken()

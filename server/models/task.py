@@ -66,6 +66,7 @@ class Task(Base):
     status: Mapped[TaskStatus] = Column(
         Enum(TaskStatus),
         default=TaskStatus.PLANNED,
+        nullable=False,
         info={"label": "Статус"}
     )
 
