@@ -35,3 +35,7 @@ downgrade:
 .PHONY: run
 run:
 	@make -j 2 run-backend run-frontend
+
+.PHONY: install
+install:
+	@make -j 2 install-frontend install-backend
