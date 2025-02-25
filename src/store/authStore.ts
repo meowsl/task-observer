@@ -8,7 +8,7 @@ export const useAuthStore = createStore<AuthState>({
     accessToken: localStorage.getItem('token') || null,
   },
   getters: {
-    getUser (state) {
+    getUser(state) {
       return state.user
     },
     isAuthenticated(state) {
@@ -16,14 +16,14 @@ export const useAuthStore = createStore<AuthState>({
     }
   },
   mutations: {
-    setUser (state, user: User) {
+    setUser(state, user: User) {
       state.user = user
     },
     setAccessToken(state, token: string) {
       state.accessToken = token
       localStorage.setItem('token', token)
     },
-    clearUser (state) {
+    clearUser(state) {
       state.user = null
       state.accessToken = null
       localStorage.removeItem('token')
@@ -39,13 +39,13 @@ export const useAuthStore = createStore<AuthState>({
         })
         const tokenPair: TokenPair = response.data
         commit('setAccessToken', tokenPair.access_token)
-      } catch (error) {
+      } catch (error: any) {
         console.error(error)
         throw error
       }
     },
-    async register({commit}, newUser: UserRegistration) {
-      try{
+    async register({ commit }, newUser: UserRegistration) {
+      try {
         const response = await api.post('/user/register', newUser)
         const tokenPair: TokenPair = response.data
         commit('setAccessToken', tokenPair.access_token)

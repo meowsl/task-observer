@@ -1,4 +1,9 @@
 <template>
+  <NotifyComponent
+    v-if="showNotification"
+    :message="notificationMessage"
+    :status="notificationStatus"
+  />
   <form
     v-if="isLogin"
     class="auth-form login"
@@ -78,9 +83,13 @@ import { UserRegistration } from '@/interfaces/user'
 import { ref, defineComponent } from 'vue'
 import { useStore } from 'vuex'
 import { useRouter } from 'vue-router'
+import NotifyComponent from '@/components/NotifyComponent.vue'
 
 export default defineComponent({
   name: 'AuthForm',
+  components: {
+    NotifyComponent
+  },
   setup() {
     const store = useStore()
     const router = useRouter()
@@ -90,6 +99,10 @@ export default defineComponent({
     const password = ref<string>('')
     const passwordConfirm = ref<string>('')
 
+    const notificationMessage = ref<string>('')
+    const notificationStatus = ref<string>('success')
+    const showNotification = ref<boolean>(false)
+
     const toggleForm = () => {
       isLogin.value = !isLogin.value
     }
@@ -98,8 +111,11 @@ export default defineComponent({
       try {
         await store.dispatch('login', { username: username.value, password: password.value })
         router.push('/')
-      } catch (error) {
-        console.error('Ошибка входа:', error)
+      } catch (error: any) {
+        console.error('Ошибка входа:', error.detail)
+        notificationMessage.value = 'Ошибка входа: ' + error.detail
+        notificationStatus.value = 'negative'
+        showNotification.value = true
       }
     }
 
@@ -112,10 +128,12 @@ export default defineComponent({
           password_confirm: passwordConfirm.value
         }
         await store.dispatch('register', userData)
-
         router.push('/')
-      } catch (error) {
-        console.error('Ошибка регистрации:', error)
+      } catch (error: any) {
+        console.error('Ошибка регистрации:', error.detail)
+        notificationMessage.value = 'Ошибка регистрации: ' + error.detail
+        notificationStatus.value = 'negative'
+        showNotification.value = true
       }
     }
 
@@ -127,7 +145,10 @@ export default defineComponent({
       passwordConfirm,
       toggleForm,
       handleLogin,
-      handleRegistration
+      handleRegistration,
+      notificationMessage,
+      notificationStatus,
+      showNotification
     }
   }
 })

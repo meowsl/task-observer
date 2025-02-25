@@ -2,7 +2,7 @@ import axios, { AxiosInstance, AxiosError, AxiosRequestConfig } from 'axios'
 import router from '@/router'
 
 const api = axios.create({
-  baseURL: process.env.VUE_APP_DEV ? 'http://localhost:8000/api/v1/' : '/api/v1',
+  baseURL: process.env.VUE_APP_DEV ? 'http://185.211.170.161:8000/api/v1/' : '/api/v1',
   withCredentials: true,
   headers: {
     'Content-Type': 'application/json'
@@ -22,6 +22,7 @@ api.interceptors.response.use(
         localStorage.removeItem('token');
         router.push('/auth');
       }
+      return Promise.reject(error.response.data);
     }
   }
 )

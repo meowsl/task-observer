@@ -1,5 +1,5 @@
 from fastapi import FastAPI
-from fastapi.middleware.cors import CORSMiddleware
+from starlette.middleware.cors import CORSMiddleware
 from starlette.middleware.sessions import SessionMiddleware
 from sqlalchemy import inspect
 from server.config import (
@@ -23,15 +23,24 @@ app = FastAPI(
     openapi_url="/openapi.json"
 )
 
+origins = [
+    "http://localhost:8080",
+    "http://127.0.0.1:8080",
+    "http://185.211.170.161",
+    "http://185.211.170.161:80",
+    "http://185.211.170.161:8080",
+    "http://0.0.0.0:80",
+    "http://0.0.0.0:8080"
+]
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:8080"],
+    allow_origins=origins,
     allow_credentials=True,
-    allow_methods=["GET", "POST", "PATCH", "DELETE"],
-    allow_headers=["Content-Type", "Authorization",
-                   "Access-Control-Allow-Origin", "Access-Control-Allow-Credentials"],
+    allow_methods=["GET", "POST", "PUT", "DELETE", "PATCH"],
+    allow_headers=["*"],
 )
+
 
 app.add_middleware(
     SessionMiddleware,
