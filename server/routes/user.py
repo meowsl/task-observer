@@ -46,6 +46,12 @@ async def register(request: Request, user: schemas.UserCreate, response: Respons
             detail="Пользователь с указанным логином уже зарегистрирован."
         )
 
+    if len(user.username) < 4:
+        raise HTTPException(
+            status_code=400,
+            detail="Длина имени пользователя должна составлять 4 или более символов."
+        )
+
     new_user = models.User(
         username=user.username,
         firstname=user.firstname,

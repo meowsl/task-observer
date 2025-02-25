@@ -51,6 +51,10 @@
       placeholder="Логин"
       required
     />
+    <span
+      v-if="usernameError && username.length > 0"
+      class="error-message"
+    >{{ usernameError }}</span>
     <input
       class="auth-form__input"
       v-model="password"
@@ -58,6 +62,10 @@
       placeholder="Пароль"
       required
     />
+    <span
+      v-if="passwordLenghtError && password.length > 0"
+      class="error-message"
+    >{{ passwordLenghtError }}</span>
     <input
       class="auth-form__input"
       v-model="passwordConfirm"
@@ -65,9 +73,15 @@
       placeholder="Подтверждение пароля"
       required
     />
+    <span
+      v-if="matchPassword && (passwordConfirm.length > 0 && password.length > 0)"
+      class="error-message"
+    >{{ matchPassword }}</span>
     <button
       class="auth-form__submit-btn"
+      :class="usernameError.length > 0 || passwordLenghtError.length > 0 || matchPassword.length > 0 ? 'disabled' : ''"
       type="submit"
+      :disabled="usernameError.length > 0 || passwordLenghtError.length > 0 || matchPassword.length > 0"
     >Зарегистрироваться</button>
   </form>
   <button
@@ -80,7 +94,7 @@
 
 <script lang="ts">
 import { UserRegistration } from '@/interfaces/user'
-import { ref, defineComponent } from 'vue'
+import { ref, defineComponent, computed } from 'vue'
 import { useStore } from 'vuex'
 import { useRouter } from 'vue-router'
 import NotifyComponent from '@/components/NotifyComponent.vue'
@@ -103,6 +117,18 @@ export default defineComponent({
     const notificationStatus = ref<string>('success')
     const showNotification = ref<boolean>(false)
 
+    const usernameError = computed(() => {
+      return username.value.length < 4 ? 'Логин должен содержать не менее 4 символов' : ''
+    })
+
+    const passwordLenghtError = computed(() => {
+      return password.value.length < 8 ? 'Длина пароля должна составлять 8 или более символов' : ''
+    })
+
+    const matchPassword = computed(() => {
+      return password.value === passwordConfirm.value ? '' : 'Пароли не совпадают'
+    })
+
     const toggleForm = () => {
       isLogin.value = !isLogin.value
     }
@@ -120,6 +146,7 @@ export default defineComponent({
     }
 
     const handleRegistration = async () => {
+      if (usernameError.value) return
       try {
         const userData: UserRegistration = {
           username: username.value,
@@ -148,12 +175,14 @@ export default defineComponent({
       handleRegistration,
       notificationMessage,
       notificationStatus,
-      showNotification
+      showNotification,
+      usernameError,
+      passwordLenghtError,
+      matchPassword
     }
   }
 })
 </script>
-
 
 <style scoped lang="scss">
 .auth-form {
@@ -161,7 +190,6 @@ export default defineComponent({
   flex-direction: column;
   align-items: center;
   color: black;
-  // max-width: 400px;
   margin: 0 auto;
   padding: 32px;
   padding-top: 0px;
@@ -196,11 +224,15 @@ export default defineComponent({
     margin-top: 12px;
     width: 10rem;
     padding: 12px;
-
     border-radius: 24px;
     border: none !important;
     background: linear-gradient(135deg, rgba(5, 31, 32, 1) 0%, rgba(11, 73, 63, 1) 100%);
     color: #f0f0f0;
+
+    &.disabled {
+      opacity: 0.8;
+      cursor: default;
+    }
   }
 
   &__toggle-form {
@@ -210,6 +242,14 @@ export default defineComponent({
     border: none;
     color: #375534;
     font-weight: 600;
+  }
+
+  .error-message {
+    color: red;
+    opacity: 0.7;
+    font-size: 0.875rem;
+    margin-top: -8px;
+    margin-bottom: 12px;
   }
 }
 </style>
